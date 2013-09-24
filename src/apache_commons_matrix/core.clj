@@ -82,8 +82,9 @@
   
   ArrayRealVector
   (get-1d [v index] (.getEntry v index))
-  (get-2d [v row column] (ex-info "ArrayRealVector only has 1 dimension"
-                                  {:index-count 2}))
+  (get-2d [v row column]
+    (throw (ex-info "ArrayRealVector only has 1 dimension"
+                    {:index-count 2})))
   (get-nd [v indexes]
     (if (= (count indexes) 1)
       (mp/get-1d v (first indexes))
