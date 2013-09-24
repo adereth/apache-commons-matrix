@@ -1,4 +1,4 @@
-(defproject apache-commons-matrix "0.1.0-SNAPSHOT"
+(defproject apache-commons-matrix "0.1.0"
   :description "Implementation of core.matrix backed by Apache Commons Math matrices"
   :url "https://github.com/Adereth/apache-commons-matrix"
   :license {:name "Eclipse Public License"
