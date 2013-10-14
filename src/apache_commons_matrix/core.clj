@@ -7,7 +7,7 @@
             RealMatrixChangingVisitor]))
 
 (extend-protocol mp/PImplementation
-  Array2DRowRealMatrix
+  RealMatrix
     (implementation-key [m] :apache-commons)
     (new-vector [m length] (ArrayRealVector. length))
     (new-matrix [m rows columns] (Array2DRowRealMatrix. rows columns))
@@ -26,7 +26,7 @@
     (supports-dimensionality? [m dims] (<= 1 dims 2)))
 
 (extend-protocol mp/PImplementation
-  ArrayRealVector
+  RealVector
     (implementation-key [m] :apache-commons)
     (new-vector [m length] (ArrayRealVector. length))
     (new-matrix [m rows columns] (Array2DRowRealMatrix. rows columns))
@@ -45,7 +45,7 @@
     (supports-dimensionality? [m dims] (<= 1 dims 2)))
 
 (extend-protocol mp/PDimensionInfo
-  Array2DRowRealMatrix
+  RealMatrix
   (dimensionality [m] 2)
   (get-shape [m] (list (.getRowDimension m) (.getColumnDimension m)))
   (is-scalar? [m] false)
@@ -54,10 +54,10 @@
     (case dimension-number
           0 (.getRowDimension m)
           1 (.getColumnDimension m)
-          (throw (ex-info "Array2DRowRealMatrix only has 2 dimensions"
+          (throw (ex-info "RealMatrix only has 2 dimensions"
                           {:requested-dimension dimension-number}))))
 
-  ArrayRealVector
+  RealVector
   (dimensionality [v] 1)
   (get-shape [v] [(.getDimension v)])
   (is-scalar? [v] false)
@@ -65,48 +65,48 @@
   (dimension-count [v dimension-number]
     (if (zero? dimension-number)
       (.getDimension v)
-      (throw (ex-info "ArrayRealVector only has 1 dimension"
+      (throw (ex-info "RealVector only has 1 dimension"
                       {:requested-dimension dimension-number})))))
 
 (extend-protocol mp/PIndexedAccess
-  Array2DRowRealMatrix
+  RealMatrix
   (get-1d [m row] (.getRowVector m row))
   (get-2d [m row column] (.getEntry m row column))
   (get-nd [m indexes]
     (case (count indexes)
           1 (mp/get-1d m (first indexes))
           2 (mp/get-2d m (first indexes) (second indexes))
-          (throw (ex-info "Array2DRowRealMatrix only has 2 dimensions"
+          (throw (ex-info "RealMatrix only has 2 dimensions"
                     {:requested-index indexes
                      :index-count (count indexes)}))))
   
-  ArrayRealVector
+  RealVector
   (get-1d [v index] (.getEntry v index))
   (get-2d [v row column]
-    (throw (ex-info "ArrayRealVector only has 1 dimension"
+    (throw (ex-info "RealVector only has 1 dimension"
                     {:index-count 2})))
   (get-nd [v indexes]
     (if (= (count indexes) 1)
       (mp/get-1d v (first indexes))
-      (throw (ex-info "ArrayRealVector only has 1 dimension"
+      (throw (ex-info "RealVector only has 1 dimension"
                       {:requested-index indexes
                        :index-count (count indexes)})))))
 
 (extend-protocol mp/PIndexedSetting
-  Array2DRowRealMatrix
+  RealMatrix
   (set-1d [m row e] (mp/set-1d! (.copy m) row e))
   (set-2d [m row column e] (mp/set-2d! (.copy m) row column e))
   (set-nd [m indexes e] (mp/set-nd! (.copy m) indexes e))
   (is-mutable? [m] true)
   
-  ArrayRealVector
+  RealVector
   (set-1d [v index e] (mp/set-1d! (.copy v) index e))
   (set-2d [v row column e] (mp/set-2d! (.copy v) row column e))
   (set-nd [v indexes e] (mp/set-nd! (.copy v) indexes e))
   (is-mutable? [m] true))
 
 (extend-protocol mp/PIndexedSettingMutable
-  Array2DRowRealMatrix
+  RealMatrix
   (set-1d! [m row e]
     (if (mp/is-vector? e)
       (doto m (.setRow row e))
@@ -114,48 +114,48 @@
   (set-2d! [m row column e] (doto m (.setEntry row column e)))
   (set-nd! [m indexes e])
   
-  ArrayRealVector
+  RealVector
   (set-1d! [v index e] (doto v (.setEntry index e)))
   (set-2d! [v row column e] (mp/set-nd! v [row column] e))
   (set-nd! [v indexes e]
     (if (= (count indexes) 1)
       (mp/set-1d! v (first indexes) e)
-      (throw (ex-info "ArrayRealVector only has 1 dimension"
+      (throw (ex-info "RealVector only has 1 dimension"
                       {:requested-index indexes
                        :index-count (count indexes)})))))
 
 (extend-protocol mp/PMatrixCloning
-  Array2DRowRealMatrix
+  RealMatrix
   (clone [m] (.copy m))
 
-  ArrayRealVector
+  RealVector
   (clone [v] (.copy v)))
 
 (extend-protocol mp/PTypeInfo
-  Array2DRowRealMatrix
+  RealMatrix
   (element-type [m] Double/TYPE)
 
-  ArrayRealVector
+  RealVector
   (element-type [v] Double/TYPE))
 
 (extend-protocol mp/PMutableMatrixConstruction
-  Array2DRowRealMatrix
+  RealMatrix
   (mutable-matrix [m] (.copy m))
 
-  ArrayRealVector
+  RealVector
   (mutable-matrix [v] (.copy v)))
 
 (extend-protocol mp/PMatrixScaling
-  Array2DRowRealMatrix
+  RealMatrix
   (scale [m a] (.scalarMultiply m a))
   (pre-scale [m a] (.scalarMultiply m a))
 
-  ArrayRealVector
+  RealVector
   (scale [v a] (.mapMultiply v a))
   (pre-scale [v a] (.mapMultiply v a)))
 
 (extend-protocol mp/PMatrixMutableScaling
-  Array2DRowRealMatrix
+  RealMatrix
   (scale! [m a] (doto m
                   (.walkInOptimizedOrder (reify RealMatrixChangingVisitor
                                            (end [_] 0.0)
@@ -164,29 +164,29 @@
   (pre-scale! [m a] (mp/scale! m a)))
 
 (extend-protocol mp/PNegation
-  Array2DRowRealMatrix
+  RealMatrix
   (negate [m] (mp/scale m -1))
 
-  ArrayRealVector
+  RealVector
   (negate [v] (mp/scale v -1)))
 
 (extend-protocol mp/PTranspose
-  Array2DRowRealMatrix
+  RealMatrix
   (transpose [m] (.transpose m)))
 
 (extend-protocol mp/PVectorOps
-  ArrayRealVector
+  RealVector
   (vector-dot [a b] (.dotProduct a (mp/coerce-param a b)))
   (length [a] (.getNorm a))
   (length-squared [a] (let [l (.getNorm a)] (* l l)))
   (normalise [a] (.unitVector a)))
 
 (extend-protocol mp/PMutableVectorOps
-  ArrayRealVector
+  RealVector
   (normalise! [a] (doto a (.unitize))))
 
 (extend-protocol mp/PVectorDistance
-  ArrayRealVector
+  RealVector
   (distance [a b] (.getDistance a (mp/coerce-param a b))))
 
 (imp/register-implementation (Array2DRowRealMatrix. 1 1))
