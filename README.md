@@ -7,7 +7,7 @@ Implementation of [core.matrix](https://github.com/mikera/matrix-api) backed by 
 Add the following to your project.clj:
 
 ```clojure
-[apache-commons-matrix "0.1.0"]
+[apache-commons-matrix "0.2.0"]
 ```
 
 ## License
