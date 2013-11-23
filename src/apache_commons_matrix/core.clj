@@ -21,8 +21,8 @@
     (construct-matrix [m data]
       (case (mp/dimensionality data)
             0 data
-            1 (ArrayRealVector. (double-array data))
-            2 (Array2DRowRealMatrix. (into-array (map double-array data)))))
+            1 (ArrayRealVector. ^doubles (mp/to-double-array data))
+            2 (Array2DRowRealMatrix. (into-array (map mp/to-double-array (mp/get-major-slice-seq data))))))
     (supports-dimensionality? [m dims] (<= 1 dims 2)))
 
 (extend-protocol mp/PImplementation
@@ -40,8 +40,8 @@
     (construct-matrix [m data]
       (case (mp/dimensionality data)
             0 data
-            1 (ArrayRealVector. (double-array data))
-            2 (Array2DRowRealMatrix. (into-array (map double-array data)))))
+            1 (ArrayRealVector. ^doubles (mp/to-double-array data))
+            2 (Array2DRowRealMatrix. (into-array (map mp/to-double-array (mp/get-major-slice-seq data))))))
     (supports-dimensionality? [m dims] (<= 1 dims 2)))
 
 (extend-protocol mp/PDimensionInfo
