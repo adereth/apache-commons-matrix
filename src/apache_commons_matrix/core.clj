@@ -189,4 +189,19 @@
   RealVector
   (distance [a b] (.getDistance a (mp/coerce-param a b))))
 
+(extend-protocol mp/PDoubleArrayOutput
+  RealVector
+  (to-double-array [m] (.toArray m))
+  (as-double-array [m] nil)
+  ArrayRealVector
+  (to-double-array [m] (.getDataRef m))
+  (as-double-array [m] (.getDataRef m))
+
+  RealMatrix
+  (to-double-array [m] (.getData m))
+  (as-double-array [m] nil)
+  Array2DRowRealMatrix
+  (to-double-array [m] (.getDataRef m))
+  (as-double-array [m] (.getDataRef m)))
+
 (imp/register-implementation (Array2DRowRealMatrix. 1 1))
