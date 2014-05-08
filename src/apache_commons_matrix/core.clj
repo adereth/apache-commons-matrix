@@ -189,4 +189,37 @@
   RealVector
   (distance [a b] (.getDistance a (mp/coerce-param a b))))
 
+(extend-protocol mp/PMatrixMultiply
+  RealVector
+  (matrix-multiply [a b]
+    (let [b-dims (mp/dimensionality b)]
+      (cond
+       (== b-dims 0) (mp/scale a b)
+       (== b-dims 1) (mp/vector-dot a b)
+       (== b-dims 2) (let [[a-rows a-cols] (mp/get-shape a)
+                          a-mat (mp/reshape a [1 a-rows])
+                          prod (mp/matrix-multiply a-mat b)]
+                      (.getRowVector prod 0)))))
+  (element-multiply [a b]
+    (if (number? b)
+      (mp/scale a b)
+      (let [[a b] (mp/broadcast-compatible a b)]
+        (mp/element-map a clojure.core/* b))))
+
+  RealMatrix
+  (matrix-multiply [a b]
+    (let [b-dims (mp/dimensionality b)]
+      (cond
+       (== b-dims 0) (mp/scale a b)
+       (== b-dims 1) (let [[b-len] (mp/get-shape b)
+                          b-mat (mp/reshape a [b-len 1])
+                          prod (mp/matrix-multiply a b-mat)]
+                       (.getColumnVector prod 0))
+       (== b-dims 2) (.multiply a b))))
+  (element-multiply [a b]
+    (if (number? b)
+      (mp/scale a b)
+      (let [[a b] (mp/broadcast-compatible a b)]
+        (mp/element-map a clojure.core/* b)))))
+
 (imp/register-implementation (Array2DRowRealMatrix. 1 1))
